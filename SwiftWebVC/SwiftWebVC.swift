@@ -153,6 +153,10 @@ public class SwiftWebVC: UIViewController {
         else if (UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.pad) {
             self.navigationController?.setToolbarHidden(true, animated: true)
         }
+        self.view.frame = CGRect(x: 0,
+                                 y: 0,
+                                 width: self.view.bounds.width,
+                                 height: navigationController?.toolbar.frame.origin.y ?? 80)
     }
     
     override public func viewWillDisappear(_ animated: Bool) {
@@ -168,6 +172,13 @@ public class SwiftWebVC: UIViewController {
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
     
+    public override func viewDidLayoutSubviews() {
+        self.view.frame = CGRect(x: 0,
+                                 y: 0,
+                                 width: UIScreen.main.bounds.width,
+                                 height: navigationController?.toolbar.frame.origin.y ?? 80)
+    }
+    
     ////////////////////////////////////////////////
     // Toolbar
     
@@ -175,6 +186,14 @@ public class SwiftWebVC: UIViewController {
         guard hideToolBar == false else {
             return
         }
+        
+        let window = UIApplication.shared.windows.first
+        let bottom = (navigationController?.toolbar.bounds.height ?? 0) + (window?.safeAreaInsets.bottom ?? 0)
+        let adjustForTabbarInsets = UIEdgeInsets(top: 0, left: 0, bottom: -bottom, right: 0)
+        webView.scrollView.contentInset = adjustForTabbarInsets
+        webView.scrollView.scrollIndicatorInsets = adjustForTabbarInsets
+        self.navigationController?.view.backgroundColor = .white
+        
         backBarButtonItem.isEnabled = webView.canGoBack
         forwardBarButtonItem.isEnabled = webView.canGoForward
         
